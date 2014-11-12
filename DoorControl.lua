@@ -2,16 +2,23 @@ local component = require("component")
 local sd = require("sides")
 local rs = component.redstone
 local cl = require("colors")
+local event = require("event")
+
 
 local SIDE = sd.top
 local doorClosed = rs.getBundledOutput(SIDE,cl.white)
+local myEventHandlers = setmetatable({},{__index = function() return unknownEvent end})
+
+function unknownEvent() --dummy function for unknown events
+
+end
 
 
 function on(color)
-	rs.setBundledOutput(SIDE,color,255)
+    rs.setBundledOutput(SIDE,color,255)
 end
 function off(color)
-	rs.setBundledOutput(SIDE,color,0)
+    rs.setBundledOutput(SIDE,color,0)
 end
 
 function close()
@@ -36,10 +43,24 @@ off(cl.blue)
 doorClosed = 0
 end
 
+function handleEvents(eventID, ... )
+    if (eventID) then   -- can be nil if no event was triggered in some time
+        myEventHandlers[eventID](...)
+    end
+end
+
+function myEventHandlers.redstone_changed(address, side)
+    if side==SIDE then
+        if rs.getBundledInput(SIDE,cl.cyan)>0 and doorClosed == 0 then
+            close()
+        elseif rs.getBundledInput(SIDE,cl.cyan)==0 and doorClosed == 1 then
+            open()
+        end
+    end
+end
+
 while true do
-	if rs.getBundledInput(SIDE,cl.cyan)>0 and doorClosed==1 then
-		open()
-	else if rs.getBundledInput(SIDE,cl.cyan)==0 and doorClosed==0 then
-		close()
-	end
+    print("Waiting")
+    handleEvents(event.pull())
+    print("Pulled Event")
 end
