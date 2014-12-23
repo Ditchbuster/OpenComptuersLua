@@ -54,24 +54,34 @@ function digBox( maxX , maxY , maxZ )
     return "Done"
 end
 function forward() --adjusts the abs vars appropreatly and returns robot.forward() return
-    if facing==0 then
-        absX=absX+1
-    elseif facing ==1 then
-        absY=absY+1
-    elseif facing ==2 then
-        absX=absX-1
-    elseif facing ==3 then
-        absY=absY-1
+    local moved = {rb.forward()}
+    if moved[1]==true then
+        if facing==0 then
+            absX=absX+1
+        elseif facing ==1 then
+            absY=absY+1
+        elseif facing ==2 then
+            absX=absX-1
+        elseif facing ==3 then
+            absY=absY-1
+        end
     end
-    return rb.forward()
+    return moved
 end
 function up() -- adjusts the absX for up and down
-    absZ=absZ+1
-    return rb.up()
+    local moved = {rb.up()}
+    if moved[1] == true then
+        absZ=absZ+1
+    end
+    return moved
+
 end
 function down()
-    absZ=absZ-1
-    return rb.down()
+    local moved = {rb.down()}
+    if moved[1] == true
+        absZ=absZ-1
+    end
+    return moved
 end
 function turnRight() --adj facing var and turns
     if facing==3 then
@@ -105,6 +115,19 @@ function turn(desFacing) -- no one seems to know if robot.turnLeft/Right() retur
         return turnLeft()
     else
         return nil,"No turn desired"
+    end
+end
+function returnToOrigin() -- return from current location to starting spot *******TODO: checking if a move happened, while loops would be better, check for neg abs vals
+    for i=0,absZ do
+        down()
+    end
+    turn(3) --turn to west as pos absY means east of starting pos
+    for i=0,absY do
+        forward()
+    end
+    turn(2) --turn to south as pos absX means north of starting pos
+    for i=0,absX do
+        forward()
     end
 end
 print(facing)
