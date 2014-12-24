@@ -12,7 +12,7 @@ function digBox( maxX , maxY , maxZ )
     if maxX<0 then error("MaxX needs to be 1 or greater") end
     if maxY<0 then error("MaxY needs to be 1 or greater") end
     if maxZ<0 then error("MaxZ needs to be 1 or greater") end
-    rb.swing()
+    swing()
     forward() --moves in to the area that you want hollowed out
     turnRight() -- aligns robot from my starting position of front left of area to be dug
     for x=0,maxX do
@@ -21,7 +21,7 @@ function digBox( maxX , maxY , maxZ )
                 if rb.durability()==nil then
                     return "No Pickaxe"
                 end
-                rb.swing()
+                swing()
                 local move = {forward()}
                 if move[1]==nil then
                     if move[2]=='entity' then
@@ -36,10 +36,10 @@ function digBox( maxX , maxY , maxZ )
                     end
                     if z ~=maxZ then
                         if x%2==0 then
-                            rb.swingUp()
+                            swingUp()
                             up()
                         else
-                            rb.swingDown()
+                            swingDown()
                             down()
                         end
                         turnRight()
@@ -49,7 +49,7 @@ function digBox( maxX , maxY , maxZ )
         if x ~= maxX then --if not the last row then move up a row (+X direction)
             local tmpFacing=facing --store direction just came from along Y
             turn(0) --turn north
-            rb.swing() --swing pickaxe ******** TODO: needs durability check
+            swing() --swing pickaxe ******** TODO: needs durability check
             forward()
             if tmpFacing==1 then  -- then turn to opposite direction then it had been before moving north
                 turn(3)
@@ -162,9 +162,28 @@ else
     end
 end
 end
---print(facing)
---turn(2)
---print(facing)
+function swing() --wraping swing class to check for duribility
+    local ret={rb.swing()}
+    if ret[1]~=true and ret[2]~="air" then
+        error(ret[2])
+    end
+    return ret
+end
+function swingUp() --wraping swing class to check for duribility
+    local ret={rb.swingUp()}
+    if ret[1]~=true and ret[2]~="air" then
+        error(ret[2])
+    end
+    return ret
+end
+function swingDown() --wraping swing class to check for duribility
+    local ret={rb.swingDown()}
+    if ret[1]~=true and ret[2]~="air" then
+        error(ret[2])
+    end
+    return ret
+end
+
 print(digBox(3,3,3))
 print(absX.." "..absY.." "..absZ)
 returnToOrigin()
