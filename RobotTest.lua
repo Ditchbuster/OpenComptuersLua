@@ -5,6 +5,13 @@ local absX,absY,absZ = 0,0,0 -- these are the coords of the bot reletive to the 
 local facing = 0 -- facing relative to starting direction. north is forward (0), east is right (1), south is back (2), west is left(3) from the staring position
 
 function digBox( maxX , maxY , maxZ )
+    maxX=maxX-1 --sets the vars to expected sizes from the function.
+    maxY=maxY-1
+    maxZ=maxZ-1
+
+    if maxX<0 then error("MaxX needs to be 1 or greater") end
+    if maxY<0 then error("MaxY needs to be 1 or greater") end
+    if maxZ<0 then error("MaxZ needs to be 1 or greater") end
     rb.swing()
     forward() --moves in to the area that you want hollowed out
     turnRight() -- aligns robot from my starting position of front left of area to be dug
@@ -78,7 +85,7 @@ function up() -- adjusts the absX for up and down
 end
 function down()
     local moved = {rb.down()}
-    if moved[1] == true
+    if moved[1] == true then
         absZ=absZ-1
     end
     return moved
@@ -117,21 +124,48 @@ function turn(desFacing) -- no one seems to know if robot.turnLeft/Right() retur
         return nil,"No turn desired"
     end
 end
-function returnToOrigin() -- return from current location to starting spot *******TODO: checking if a move happened, while loops would be better, check for neg abs vals
-    for i=0,absZ do
-        down()
+function returnToOrigin() -- return from current location to starting spot 
+    goTo(0,0,0)
+    turn(0) --turn back to starting rotation
+end
+function goTo(inX,inY,inZ) --*******TODO: checking if a move happened, while loops would be better, check for neg abs vals
+
+    if inZ-absZ>0 then
+        for i=absZ,inZ do
+            up()
+        end
+    else
+        for i=inZ,absZ do
+            down()
+        end
     end
-    turn(3) --turn to west as pos absY means east of starting pos
-    for i=0,absY do
+    if inY-absY>0 then
+    turn(1) --turn east to increase absY
+    for i=absY,inY do
         forward()
     end
-    turn(2) --turn to south as pos absX means north of starting pos
-    for i=0,absX do
+else
+    turn(3) -- turn west to decrease absY
+    for i=inY,absY do
         forward()
     end
 end
-print(facing)
-turn(2)
-print(facing)
+if inX-absX>0 then
+    turn(0) -- turn north to increase absX
+    for i=absX,inX do
+        forward()
+    end
+    else
+    turn(2)
+    for i=inX,absX do
+        forward()
+    end
+    end
+end
+--print(facing)
+--turn(2)
+--print(facing)
 print(digBox(3,3,3))
+print(absX.." "..absY.." "..absZ)
+returnToOrigin()
 print(absX.." "..absY.." "..absZ)
