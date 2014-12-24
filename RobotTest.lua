@@ -27,25 +27,25 @@ function digBox( maxX , maxY , maxZ )
                     if move[2]=='entity' then
                         repeat
                             os.sleep(100)
-                        until rb.detect()==false
-                    else
-                        return move[2]
+                            until rb.detect()==false
+                            else
+                                return move[2]
+                            end
+                        end
+                        print("@".. absX .."," .. absY .. "," .. absZ)
+                    end
+                    if z ~=maxZ then
+                        if x%2==0 then
+                            rb.swingUp()
+                            up()
+                        else
+                            rb.swingDown()
+                            down()
+                        end
+                        turnRight()
+                        turnRight()
                     end
                 end
-                print("@".. absX .."," .. absY .. "," .. absZ)
-            end
-            if z ~=maxZ then
-                if x%2==0 then
-                    rb.swingUp()
-                    up()
-                else
-                    rb.swingDown()
-                    down()
-                end
-                turnRight()
-                turnRight()
-            end
-        end
         if x ~= maxX then --if not the last row then move up a row (+X direction)
             local tmpFacing=facing --store direction just came from along Y
             turn(0) --turn north
@@ -131,36 +131,36 @@ end
 function goTo(inX,inY,inZ) --*******TODO: checking if a move happened, while loops would be better, check for neg abs vals
 
     if inZ-absZ>0 then
-        for i=absZ,inZ do
+        for i=absZ,inZ-1 do
             up()
         end
     else
-        for i=inZ,absZ do
+        for i=inZ,absZ-1 do
             down()
         end
     end
     if inY-absY>0 then
     turn(1) --turn east to increase absY
-    for i=absY,inY do
+    for i=absY,inY-1 do
         forward()
     end
 else
     turn(3) -- turn west to decrease absY
-    for i=inY,absY do
+    for i=inY,absY-1 do
         forward()
     end
 end
 if inX-absX>0 then
     turn(0) -- turn north to increase absX
-    for i=absX,inX do
+    for i=absX,inX-1 do
         forward()
     end
-    else
+else
     turn(2)
-    for i=inX,absX do
+    for i=inX,absX-1 do
         forward()
     end
-    end
+end
 end
 --print(facing)
 --turn(2)
