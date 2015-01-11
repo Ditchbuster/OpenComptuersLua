@@ -1,8 +1,9 @@
 --local component = require("component")
---local sd = require("sides")
 local rb = require("robot")
+--local sd = require("sides")
 local absX,absY,absZ = 0,0,0 -- these are the coords of the bot reletive to the starting point, X is in the +north -south direction, Y in the +east -west direction and Z in the +up -down direction
 local facing = 0 -- facing relative to starting direction. north is forward (0), east is right (1), south is back (2), west is left(3) from the staring position
+local args = {...}
 
 function digBox( maxX , maxY , maxZ )
     maxX=maxX-1 --sets the vars to expected sizes from the function.
@@ -140,27 +141,30 @@ function goTo(inX,inY,inZ) --*******TODO: checking if a move happened, while loo
         end
     end
     if inY-absY>0 then
-    turn(1) --turn east to increase absY
-    for i=absY,inY-1 do
-        forward()
+        turn(1) --turn east to increase absY
+        for i=absY,inY-1 do
+            forward()
+        end
+    else
+        turn(3) -- turn west to decrease absY
+        for i=inY,absY-1 do
+            forward()
+        end
     end
-else
-    turn(3) -- turn west to decrease absY
-    for i=inY,absY-1 do
+    if inX-absX>0 then
+        turn(0) -- turn north to increase absX
+        for i=absX,inX-1 do
         forward()
+        end
+    else
+        turn(2)
+        for i=inX,absX-1 do
+            forward()
+        end
     end
-end
-if inX-absX>0 then
-    turn(0) -- turn north to increase absX
-    for i=absX,inX-1 do
-        forward()
+    if absX~=0 or absY~=0 or absZ~=0 then
+        goto(0,0,0)
     end
-else
-    turn(2)
-    for i=inX,absX-1 do
-        forward()
-    end
-end
 end
 function swing() --wraping swing class to check for duribility
     local ret={rb.swing()}
@@ -183,8 +187,24 @@ function swingDown() --wraping swing class to check for duribility
     end
     return ret
 end
+function modemMessage(evt,_,_,_,_,cmd,...)
+    if cmd =="1" then
+        modem.broadcast(2412,absX,absY,absZ)
+    end
 
-print(digBox(3,3,3))
-print(absX.." "..absY.." "..absZ)
-returnToOrigin()
-print(absX.." "..absY.." "..absZ)
+end
+
+event.listen("modem_message",function(evt,_,_,_,_,...) if ...=="1" then modem.broadcast(2412,absX,absY,absZ) end end)
+modem.open(2412)
+while true do
+os.sleep(50)
+end
+
+-- if #args==3 then 
+-- print(digBox(args[1],args[2],args[3]))
+-- print(absX.." "..absY.." "..absZ)
+-- returnToOrigin()
+-- print(absX.." "..absY.." "..absZ)
+-- else 
+--     print("Needs 3 args, x,y,z")
+-- end
